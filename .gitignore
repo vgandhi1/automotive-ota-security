@@ -1,0 +1,17 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Provisioning artifacts
+server/provisioning_audit.db
+certs/device_enclave/*.key
+certs/device_enclave/*.crt
+
+# CA and server private keys — never commit
+ca/root_ca/ca.key
+ca/factory_ca/factory_ca.key
+certs/bootstrap/bootstrap.key
+certs/server/server.key
