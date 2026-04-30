@@ -1,0 +1,51 @@
+# Phase 1: local data plane — MinIO + presigned URL API (S3-compatible).
+# Usage: docker compose up --build
+services:
+  minio:
+    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+
+  minio-init:
+    image: minio/mc:RELEASE.2024-11-21T17-21-54Z
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      for i in $$(seq 1 60); do
+        mc alias set local http://minio:9000 minioadmin minioadmin && break;
+        sleep 2;
+      done;
+      mc mb -p local/firmware || true
+      "
+    restart: "no"
+
+  presign-api:
+    build:
+      context: ./services/presign-api
+      dockerfile: Dockerfile
+    environment:
+      PRESIGN_API_ADDR: ":8080"
+      S3_ENDPOINT: http://minio:9000
+      S3_REGION: us-east-1
+      S3_BUCKET: firmware
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_USE_PATH_STYLE: "true"
+      PRESIGN_TTL_SECONDS: "7200"
+      PRESIGN_API_KEYS: dev-local-key
+    ports:
+      - "8080:8080"
+    depends_on:
+      - minio
+      - minio-init
+
+volumes:
+  minio-data:

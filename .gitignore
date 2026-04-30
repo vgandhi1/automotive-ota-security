@@ -1,0 +1,7 @@
+.env
+.env.*
+!.env.example
+*.bin
+services/presign-api/presign-api
+.DS_Store
+.claude/

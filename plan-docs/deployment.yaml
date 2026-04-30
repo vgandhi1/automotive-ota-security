@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: overdrive-orchestrator
+  labels:
+    app: overdrive-orchestrator
+spec:
+  replicas: 3 # Run 3 instances of the Go backend for high availability
+  selector:
+    matchLabels:
+      app: overdrive-orchestrator
+  template:
+    metadata:
+      labels:
+        app: overdrive-orchestrator
+    spec:
+      containers:
+      - name: orchestrator
+        image: your-dockerhub-user/overdrive-orchestrator:v1.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080 # The REST/GraphQL API port
+        env:
+        - name: NATS_URL
+          value: "nats://nats-broker:4222"
+        - name: DB_HOST
+          value: "postgres-db"
+        
+        # Staff-Level Detail: Resource Limits prevent this pod from starving others on the node
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+            
+        # Staff-Level Detail: Kubernetes uses this to know if the app is actually ready to take traffic
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          
+        # Staff-Level Detail: Kubernetes uses this to know if it needs to kill and restart a frozen container
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20

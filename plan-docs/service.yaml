@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: overdrive-orchestrator-svc
+  labels:
+    app: overdrive-orchestrator
+spec:
+  type: ClusterIP # Keeps the service internal. (Use LoadBalancer if exposing to the public internet)
+  selector:
+    app: overdrive-orchestrator
+  ports:
+    - name: http-api
+      protocol: TCP
+      port: 80       # The port other services inside the cluster will call
+      targetPort: 8080 # The port your Go app is actually listening on inside the pod
