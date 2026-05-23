@@ -7,7 +7,7 @@ A Python simulation of the factory-floor device provisioning pipeline used in co
 [![Live Presentation](https://img.shields.io/badge/presentation-live-brightgreen?style=flat-square)](https://vgandhi1.github.io/automotive-key-provisioner/)
 [![View Slides](https://img.shields.io/badge/slides-presentation.html-8b5cf6?style=flat-square)](presentation.html)
 
-📊 **[Live Presentation](https://vgandhi1.github.io/automotive-key-provisioner/)** · [Static slides](presentation.html) · [Slide outline](PRESENTATION.md) *(Pages: **Settings → Pages → Source: GitHub Actions**, then run **Deploy GitHub Pages** workflow)*
+📊 **[Live Presentation](https://vgandhi1.github.io/automotive-key-provisioner/)** · [Static slides](presentation.html) · [Slide outline](PRESENTATION.md) *(Pages: **Settings → Pages → Deploy from branch → `gh-pages` / (root)** — not `main`; then run **Deploy GitHub Pages** workflow)*
 
 ---
 
