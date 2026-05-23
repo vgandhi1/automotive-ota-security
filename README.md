@@ -2,6 +2,13 @@
 
 Enterprise-style **fleet OTA orchestration** platform: control plane (NATS), data plane (S3-compatible object storage + presigned HTTPS downloads), Go orchestrator, and a React command center. Product intent and phased delivery live under `plan docs/` and `plan-docs/`.
 
+[![Live Presentation](https://img.shields.io/badge/presentation-live-brightgreen?style=flat-square)](https://vgandhi1.github.io/Overdrive-OTA-Manager/)
+[![View Slides](https://img.shields.io/badge/slides-presentation.html-6366f1?style=flat-square)](presentation.html)
+
+📊 **[Live Presentation](https://vgandhi1.github.io/Overdrive-OTA-Manager/)** · [Static slides](presentation.html)
+
+*(Pages: **Settings → Pages → Deploy from branch → `gh-pages` / (root)** — not `main`; run **Deploy GitHub Pages** workflow after push)*
+
 ## Architecture schematic
 
 Split-plane design: **low-latency signaling** over NATS (small messages, including presigned URLs) and **large firmware binaries** over HTTPS directly to object storage. Based on `plan-docs/architecture.md`.
@@ -146,6 +153,7 @@ When you implement the orchestrator service, match this contract so platform too
 
 | Path | Description |
 |------|-------------|
+| `presentation.html` | Static slide deck (GitHub Pages) |
 | `docker-compose.yml` | Local Phase 1 stack |
 | `services/presign-api/` | Go presign service source and `Dockerfile` |
 | `k8s/` | Namespace, MinIO, bucket Job, presign Deployment/Service |

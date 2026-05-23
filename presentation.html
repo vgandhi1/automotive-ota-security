@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Overdrive OTA Manager — Fleet OTA Orchestration</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06080f;--bg-card:#0c1018;--bg-card2:#121a28;
+  --accent:#6366f1;--accent2:#22d3ee;--accent3:#10b981;
+  --amber:#f59e0b;--text:#f1f5f9;--muted:#94a3b8;
+  --border:rgba(99,102,241,.25);--glow:rgba(99,102,241,.1);
+  --mono:'JetBrains Mono','Fira Code',Consolas,monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:52px;background:rgba(6,8,15,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:11px;color:var(--accent2);font-weight:700}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap}
+.nav-links a{font-size:10px;color:var(--muted);text-decoration:none;padding:5px 10px;border-radius:6px}
+.nav-links a:hover,.nav-links a.active{color:var(--text);background:rgba(99,102,241,.15)}
+.slide{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:88px 72px 72px;border-bottom:1px solid rgba(99,102,241,.08);position:relative}
+.slide-num{position:absolute;top:68px;right:48px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.section-label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);margin-bottom:10px}
+.slide-title{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;margin-bottom:8px;line-height:1.2}
+.slide-title span{color:var(--accent2)}
+.slide-desc{color:var(--muted);font-size:.9rem;margin-bottom:32px;max-width:720px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:22px}
+.card h3{font-size:.92rem;font-weight:600;margin-bottom:8px}
+.card p{font-size:.82rem;color:var(--muted);line-height:1.55}
+.bt-indigo{border-top:3px solid var(--accent)}
+.bt-cyan{border-top:3px solid var(--accent2)}
+.bt-green{border-top:3px solid var(--accent3)}
+.bt-amber{border-top:3px solid var(--amber)}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pill{font-family:var(--mono);font-size:10px;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-card);color:var(--muted)}
+.slide-hero{background:radial-gradient(ellipse 70% 55% at 50% 35%,rgba(99,102,241,.12) 0%,transparent 70%);align-items:center;text-align:center}
+.hero-badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent2);border:1px solid var(--border);border-radius:20px;padding:5px 18px;margin-bottom:22px;background:var(--glow)}
+.hero-h1{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;line-height:1.1;background:linear-gradient(135deg,#fff,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px;max-width:880px}
+.hero-sub{font-size:1rem;color:var(--muted);max-width:640px;margin-bottom:32px}
+.arch-diagram{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:28px;font-family:var(--mono);font-size:.7rem;line-height:1.55;overflow-x:auto;white-space:pre;color:var(--muted)}
+.phase-list{display:flex;flex-direction:column;gap:10px}
+.phase-item{display:flex;gap:14px;align-items:flex-start;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.phase-n{font-family:var(--mono);font-size:.72rem;color:var(--accent2);font-weight:700;min-width:52px}
+.phase-item h4{font-size:.85rem;font-weight:600;margin-bottom:4px}
+.phase-item p{font-size:.78rem;color:var(--muted)}
+.phase-item.done{border-left:3px solid var(--accent3)}
+.phase-item.planned{opacity:.85}
+pre{background:#040810;border:1px solid var(--border);border-radius:10px;padding:16px;font-family:var(--mono);font-size:.7rem;line-height:1.6;color:#cbd5e1;overflow-x:auto}
+.stack-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.stack-table th{background:var(--bg-card2);color:var(--muted);text-align:left;padding:10px 14px;font-size:.72rem;border-bottom:1px solid var(--border);font-family:var(--mono)}
+.stack-table td{padding:11px 14px;border-bottom:1px solid rgba(99,102,241,.08)}
+.slide-final{align-items:center;text-align:center}
+.final-h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:900;margin-bottom:14px}
+.final-link{display:inline-block;margin-top:20px;padding:10px 24px;border-radius:8px;background:var(--accent);color:#fff;font-weight:700;text-decoration:none;font-size:.85rem}
+@media(max-width:900px){.slide{padding:72px 24px 56px}.g2,.g3{grid-template-columns:1fr}.nav-links{display:none}}
+</style>
+</head>
+<body>
+<nav>
+  <span class="nav-logo">OVERDRIVE OTA</span>
+  <div class="nav-links">
+    <a href="#title">Intro</a>
+    <a href="#planes">Split Plane</a>
+    <a href="#phase1">Phase 1</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="#api">API</a>
+    <a href="#summary">Summary</a>
+  </div>
+</nav>
+
+<section class="slide slide-hero" id="title">
+  <div class="hero-badge">Fleet OTA Orchestration Platform</div>
+  <h1 class="hero-h1">Overdrive OTA Manager</h1>
+  <p class="hero-sub">
+    Enterprise-style OTA: control plane (NATS), data plane (S3-compatible storage + presigned HTTPS),
+    Go orchestrator, and a React command center — split signaling from multi-gigabyte firmware blobs.
+  </p>
+  <div class="pill-row">
+    <span class="pill">NATS JetStream</span>
+    <span class="pill">MinIO / S3</span>
+    <span class="pill">Go presign-api</span>
+    <span class="pill">Kubernetes</span>
+    <span class="pill">Docker Compose</span>
+    <span class="pill">Rust vehicle sim (planned)</span>
+  </div>
+</section>
+
+<section class="slide" id="planes">
+  <span class="slide-num">02 / 06</span>
+  <div class="section-label">Architecture</div>
+  <h2 class="slide-title">Split-plane <span>design</span></h2>
+  <p class="slide-desc">Low-latency fleet commands over NATS; large firmware binaries over HTTPS directly to object storage — never through the message broker.</p>
+  <div class="arch-diagram">React Command Center
+        │ HTTPS
+        ▼
+Go Orchestrator ──► PostgreSQL (campaigns) · Redis (live state)
+        │
+        ├──► NATS JetStream  (commands, status per VIN)
+        │
+        └──► presign-api ──► MinIO / S3 (firmware bucket)
+
+Rust Vehicle Simulator (edge)
+        │ subscribe commands (small payload + presigned URL)
+        ├──► HTTPS GET firmware ──► object storage
+        └──► publish status ──► NATS</div>
+  <div class="g3" style="margin-top:24px">
+    <div class="card bt-indigo"><h3>Control plane</h3><p>NATS — durable commands and vehicle status. Small messages only.</p></div>
+    <div class="card bt-cyan"><h3>Data plane</h3><p>Presigned URLs — time-limited HTTPS downloads from object storage.</p></div>
+    <div class="card bt-green"><h3>Presentation</h3><p>React + TypeScript command center for campaigns and fleet visibility (Phase 4).</p></div>
+  </div>
+</section>
+
+<section class="slide" id="phase1">
+  <span class="slide-num">03 / 06</span>
+  <div class="section-label">Phase 1 (today)</div>
+  <h2 class="slide-title">Data plane <span>running now</span></h2>
+  <div class="g2">
+    <div class="card bt-cyan">
+      <h3>Docker Compose stack</h3>
+      <p>MinIO (firmware bucket), init job, presign-api on port 8080. Dev credentials — rotate for shared environments.</p>
+    </div>
+    <div class="card bt-indigo">
+      <h3>Kubernetes</h3>
+      <p><code>k8s/</code> manifests for namespace <code>overdrive-ota</code> — same data-plane slice in-cluster.</p>
+    </div>
+  </div>
+  <table class="stack-table" style="margin-top:20px">
+    <thead><tr><th>Service</th><th>Ports</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td>minio</td><td>9000 API · 9001 console</td><td>S3-compatible firmware storage</td></tr>
+      <tr><td>presign-api</td><td>8080</td><td>Presigned GET URLs · /healthz · /metrics</td></tr>
+    </tbody>
+  </table>
+  <pre style="margin-top:20px">docker compose up --build
+
+curl -sS -X POST http://localhost:8080/v1/presign \
+  -H "Authorization: Bearer dev-local-key" \
+  -H "Content-Type: application/json" \
+  -d '{"object_key":"firmware/v1/hello.bin"}'</pre>
+</section>
+
+<section class="slide" id="roadmap">
+  <span class="slide-num">04 / 06</span>
+  <div class="section-label">Roadmap</div>
+  <h2 class="slide-title">Phased <span>delivery</span></h2>
+  <div class="phase-list">
+    <div class="phase-item done"><span class="phase-n">P1</span><div><h4>Object storage + presign-api</h4><p>Compose, K8s, smoke scripts — implemented today.</p></div></div>
+    <div class="phase-item planned"><span class="phase-n">P2</span><div><h4>NATS + Rust vehicle simulator</h4><p>Subscribe, HTTPS download, publish state transitions.</p></div></div>
+    <div class="phase-item planned"><span class="phase-n">P3</span><div><h4>Go orchestrator</h4><p>Campaigns, state machine, canary — aligns with plan-docs K8s deployment.</p></div></div>
+    <div class="phase-item planned"><span class="phase-n">P4</span><div><h4>React command center</h4><p>Real-time fleet UI wired to orchestrator + NATS.</p></div></div>
+    <div class="phase-item planned"><span class="phase-n">P5</span><div><h4>Idempotency + chaos</h4><p>Retry-safe commands, chaos validation.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" id="api">
+  <span class="slide-num">05 / 06</span>
+  <div class="section-label">Presign API</div>
+  <h2 class="slide-title">Secure <span>object keys</span></h2>
+  <div class="g2">
+    <div class="card"><h3>Auth</h3><p><code>Authorization: Bearer</code> or <code>X-API-Key</code>. Keys via <code>PRESIGN_API_KEYS</code> env.</p></div>
+    <div class="card"><h3>Validation</h3><p>Strict <code>object_key</code> format — no path traversal, no arbitrary URLs.</p></div>
+  </div>
+  <div class="card bt-amber" style="margin-top:20px">
+    <h3>Observability</h3>
+    <p>Prometheus metrics: <code>ota_active_campaigns</code>, <code>ota_vehicle_updates_total</code>, <code>ota_nats_processing_latency</code> (orchestrator phases).</p>
+  </div>
+</section>
+
+<section class="slide slide-final" id="summary">
+  <span class="slide-num">06 / 06</span>
+  <div class="section-label">Summary</div>
+  <h2 class="final-h2">Fleet OTA with the right bytes on the right plane</h2>
+  <p style="color:var(--muted);max-width:560px">Signaling stays fast on NATS; firmware stays on object storage with presigned HTTPS — the foundation for safe, scalable vehicle updates.</p>
+  <div class="pill-row" style="margin-top:28px">
+    <span class="pill">github.com/vgandhi1/Overdrive-OTA-Manager</span>
+    <span class="pill">plan-docs/architecture.md</span>
+  </div>
+  <a class="final-link" href="https://github.com/vgandhi1/Overdrive-OTA-Manager" target="_blank" rel="noopener">View Repository →</a>
+</section>
+
+<script>
+const sections=document.querySelectorAll('.slide[id]');
+const links=document.querySelectorAll('.nav-links a');
+sections.forEach(s=>{new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+x.target.id));});},{rootMargin:'-40% 0px -55% 0px'}).observe(s);});
+document.addEventListener('keydown',e=>{const ids=[...sections].map(s=>s.id);const i=ids.findIndex(id=>document.getElementById(id).getBoundingClientRect().top>=-100);if(e.key==='ArrowDown'||e.key==='PageDown'){e.preventDefault();document.getElementById(ids[Math.min(i+1,ids.length-1)]).scrollIntoView({behavior:'smooth'});}if(e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();document.getElementById(ids[Math.max(i-1,0)]).scrollIntoView({behavior:'smooth'});}});
+</script>
+</body>
+</html>
