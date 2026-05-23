@@ -7,7 +7,7 @@ A Rust simulation of the secure boot and OTA firmware verification pipeline used
 [![Live Presentation](https://img.shields.io/badge/presentation-live-brightgreen?style=flat-square)](https://vgandhi1.github.io/OTA-firmware-verifier/)
 [![View Slides](https://img.shields.io/badge/slides-presentation.html-3b82f6?style=flat-square)](presentation.html)
 
-📊 **[Live Presentation](https://vgandhi1.github.io/OTA-firmware-verifier/)** · [Static slides](presentation.html) *(Pages: **Settings → Pages → Source: GitHub Actions**, then run **Deploy GitHub Pages** workflow)*
+📊 **[Live Presentation](https://vgandhi1.github.io/OTA-firmware-verifier/)** · [Static slides](presentation.html) *(Pages: **Settings → Pages → Deploy from branch → `gh-pages` / (root)** — not `main`; then run **Deploy GitHub Pages** workflow)*
 
 ---
 
