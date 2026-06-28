@@ -1,0 +1,40 @@
+# Deploys presentation.html as index.html on branch gh-pages (presentation only).
+# Settings → Pages → Deploy from a branch → gh-pages / (root)
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'presentation.html'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build static site
+        run: |
+          test -f presentation.html || { echo "Missing presentation.html in repo root"; exit 1; }
+          mkdir -p _site
+          cp presentation.html _site/index.html
+          cp presentation.html _site/presentation.html
+          touch _site/.nojekyll
+
+      - name: Publish to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          publish_branch: gh-pages
+          force_orphan: true
