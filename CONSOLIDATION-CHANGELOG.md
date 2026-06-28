@@ -74,7 +74,8 @@ Legacy decks on **archived repos remain static** (read-only gh-pages). **Future*
 | `../PORTFOLIO_NOTION_PAGE.md` | Repo links → meta-repo |
 | `../GIT-STATUS-AUDIT.md` | Repo count + inventory |
 | `../REPO-CONSOLIDATION-ANALYSIS.md` | Phase 2 checklist tick + status |
-| `../STANDARDS-COMPLIANCE-REPORT.md` | Path rows → meta-repo subfolders |
+| `../REPO-CONSOLIDATION-TRACKER.md` | Central consolidation log (new) |
+| `../STANDARDS-COMPLIANCE-REPORT.md` | Pillar row → meta-repo note |
 
 ---
 
@@ -88,11 +89,11 @@ Legacy decks on **archived repos remain static** (read-only gh-pages). **Future*
 
 ## Verification checklist
 
-- [ ] Fresh clone: `git clone https://github.com/vgandhi1/automotive-ota-security.git`
-- [ ] Sub-project quickstarts run (OTA-firmware-verifier `cargo run`, etc.)
-- [ ] Pages workflow green; three subpath decks load
-- [ ] Archived repos show ARCHIVED.md on GitHub
-- [ ] Portfolio site links resolve
+- [x] Meta-repo pushed: https://github.com/vgandhi1/automotive-ota-security
+- [x] Three legacy repos archived on GitHub
+- [x] Portfolio + workspace tracking docs updated
+- [ ] Pages workflow run + three subpath decks live
+- [ ] Fresh clone smoke test
 
 ---
 
