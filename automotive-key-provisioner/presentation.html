@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Automotive Key Provisioner — Factory mTLS Provisioning</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07060f;--bg-card:#0f0e18;--bg-card2:#16142a;
+  --accent:#8b5cf6;--accent2:#3b82f6;--accent3:#10b981;
+  --amber:#f59e0b;--red:#ef4444;
+  --text:#f5f3ff;--muted:#a8a29e;
+  --border:rgba(139,92,246,.25);--glow:rgba(139,92,246,.1);
+  --mono:'JetBrains Mono','Fira Code',Consolas,monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:52px;background:rgba(7,6,15,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.06em}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap}
+.nav-links a{font-size:10px;color:var(--muted);text-decoration:none;padding:5px 10px;border-radius:6px;transition:all .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--text);background:rgba(139,92,246,.15)}
+.slide{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:88px 72px 72px;position:relative;border-bottom:1px solid rgba(139,92,246,.1)}
+.slide-num{position:absolute;top:68px;right:48px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.section-label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.slide-title{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;margin-bottom:8px;line-height:1.2}
+.slide-title span{color:var(--accent)}
+.slide-desc{color:var(--muted);font-size:.9rem;margin-bottom:32px;max-width:720px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:22px}
+.card h3{font-size:.92rem;font-weight:600;margin-bottom:8px}
+.card p{font-size:.82rem;color:var(--muted);line-height:1.55}
+.bt-purple{border-top:3px solid var(--accent)}
+.bt-blue{border-top:3px solid var(--accent2)}
+.bt-green{border-top:3px solid var(--accent3)}
+.bt-amber{border-top:3px solid var(--amber)}
+.bt-red{border-top:3px solid var(--red)}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pill{font-family:var(--mono);font-size:10px;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-card);color:var(--muted)}
+.slide-hero{background:radial-gradient(ellipse 70% 55% at 50% 35%,rgba(139,92,246,.12) 0%,transparent 70%);align-items:center;text-align:center}
+.hero-badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);border:1px solid var(--border);border-radius:20px;padding:5px 18px;margin-bottom:22px;background:var(--glow)}
+.hero-h1{font-size:clamp(1.7rem,4vw,2.8rem);font-weight:900;line-height:1.1;background:linear-gradient(135deg,#fff,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px;max-width:820px}
+.hero-sub{font-size:1rem;color:var(--muted);max-width:620px;margin-bottom:32px}
+.pki-tree{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:28px;font-family:var(--mono);font-size:.78rem;line-height:2;color:var(--muted);text-align:center}
+.pki-tree .root{color:var(--accent);font-weight:700}
+.pki-tree .branch{color:var(--accent2)}
+.pki-tree .leaf{color:var(--accent3)}
+.seq-steps{display:flex;flex-direction:column;gap:12px}
+.seq-step{display:flex;gap:16px;align-items:flex-start;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.seq-num{font-family:var(--mono);font-size:.75rem;color:var(--accent);font-weight:700;min-width:28px}
+.seq-step h4{font-size:.85rem;font-weight:600;margin-bottom:4px}
+.seq-step p{font-size:.78rem;color:var(--muted)}
+.stack-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.stack-table th{background:var(--bg-card2);color:var(--muted);text-align:left;padding:10px 14px;font-size:.72rem;border-bottom:1px solid var(--border);font-family:var(--mono)}
+.stack-table td{padding:11px 14px;border-bottom:1px solid rgba(139,92,246,.08);vertical-align:top}
+pre{background:#04030a;border:1px solid var(--border);border-radius:10px;padding:16px 18px;font-family:var(--mono);font-size:.7rem;line-height:1.6;overflow-x:auto;color:#cbd5e1}
+.slide-final{align-items:center;text-align:center}
+.final-h2{font-size:clamp(1.4rem,3vw,2.1rem);font-weight:900;margin-bottom:14px}
+.final-link{display:inline-block;margin-top:20px;padding:10px 24px;border-radius:8px;background:var(--accent);color:#fff;font-weight:700;text-decoration:none;font-size:.85rem}
+@media(max-width:900px){.slide{padding:72px 24px 56px}.g2,.g3{grid-template-columns:1fr}.nav-links{display:none}}
+</style>
+</head>
+<body>
+<nav>
+  <span class="nav-logo">KEY PROVISIONER</span>
+  <div class="nav-links">
+    <a href="#title">Intro</a>
+    <a href="#problem">Problem</a>
+    <a href="#pki">PKI</a>
+    <a href="#flow">Flow</a>
+    <a href="#security">Security</a>
+    <a href="#demo">Demo</a>
+    <a href="#summary">Summary</a>
+  </div>
+</nav>
+
+<section class="slide slide-hero" id="title">
+  <div class="hero-badge">UNECE WP.29/R155 · ISO/SAE 21434</div>
+  <h1 class="hero-h1">Automotive Key Provisioner</h1>
+  <p class="hero-sub">
+    Factory-floor device provisioning: each vehicle receives a unique cryptographic identity
+    injected securely over mutual TLS — before leaving the production line.
+  </p>
+  <div class="pill-row">
+    <span class="pill">Python · FastAPI</span>
+    <span class="pill">mTLS 1.3</span>
+    <span class="pill">secp256r1</span>
+    <span class="pill">Factory PKI</span>
+    <span class="pill">SQLite Audit</span>
+    <span class="pill">Docker</span>
+  </div>
+</section>
+
+<section class="slide" id="problem">
+  <span class="slide-num">02 / 07</span>
+  <div class="section-label">Problem</div>
+  <h2 class="slide-title">Assembly-line devices need a <span>unique identity</span></h2>
+  <p class="slide-desc">Connected vehicles require a strong private key + certificate for cloud and zero-trust operations. Provisioning must be secure, auditable, and automatable.</p>
+  <div class="g3">
+    <div class="card bt-red"><h3>Plaintext keys</h3><p>Keys sent unencrypted over the factory LAN can be intercepted on the wire.</p></div>
+    <div class="card bt-amber"><h3>Rogue devices</h3><p>Unauthorized endpoints could request identities without bootstrap trust.</p></div>
+    <div class="card bt-purple"><h3>No audit trail</h3><p>Without durable logs, compliance and incident response are weak.</p></div>
+  </div>
+  <div class="card bt-green" style="margin-top:24px">
+    <h3>Goal</h3>
+    <p>Only legitimate factory devices receive a permanent identity. Keys never travel in the clear. Every provisioning event is logged.</p>
+  </div>
+</section>
+
+<section class="slide" id="pki">
+  <span class="slide-num">03 / 07</span>
+  <div class="section-label">Trust hierarchy</div>
+  <h2 class="slide-title">Localized <span>factory PKI</span></h2>
+  <div class="pki-tree">
+    <div class="root">Root CA (offline trust anchor)</div>
+    ↓<br>
+    <div class="branch">Factory CA (signs production certs)</div>
+    ↓<br>
+    <span class="leaf">Server cert</span> · <span class="leaf">Bootstrap cert</span> · <span class="leaf">Device cert (per VIN)</span>
+  </div>
+  <p class="slide-desc" style="margin-top:20px;margin-bottom:0">Bootstrap cert is pre-installed on hardware. Factory CA issues the permanent device identity at provisioning time.</p>
+</section>
+
+<section class="slide" id="flow">
+  <span class="slide-num">04 / 07</span>
+  <div class="section-label">Provisioning flow</div>
+  <h2 class="slide-title">mTLS tunnel → <span>key injection</span></h2>
+  <div class="seq-steps">
+    <div class="seq-step"><span class="seq-num">01</span><div><h4>TLS ClientHello + bootstrap cert</h4><p>Device presents Factory CA–signed bootstrap identity.</p></div></div>
+    <div class="seq-step"><span class="seq-num">02</span><div><h4>Server validates chain to Root CA</h4><p>Mutual TLS 1.3 tunnel established (AES-GCM).</p></div></div>
+    <div class="seq-step"><span class="seq-num">03</span><div><h4>POST /provision { VIN }</h4><p>Server generates secp256r1 keypair, signs device cert with Factory CA.</p></div></div>
+    <div class="seq-step"><span class="seq-num">04</span><div><h4>Deliver over TLS only</h4><p>Private key + cert returned inside tunnel; server zeroes key from RAM.</p></div></div>
+    <div class="seq-step"><span class="seq-num">05</span><div><h4>Device enclave storage</h4><p>Client writes to <code>certs/device_enclave/</code> with chmod 400. Audit log updated.</p></div></div>
+  </div>
+</section>
+
+<section class="slide" id="security">
+  <span class="slide-num">05 / 07</span>
+  <div class="section-label">Security model</div>
+  <h2 class="slide-title">Threat <span>mitigations</span></h2>
+  <table class="stack-table">
+    <thead><tr><th>Threat</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Network sniffing</td><td>Key material only inside mutually authenticated TLS 1.3</td></tr>
+      <tr><td>Rogue device</td><td>Server requires valid bootstrap cert chaining to Root CA</td></tr>
+      <tr><td>Insider / server compromise</td><td>Server deletes device private key after delivery; SQLite audit log</td></tr>
+    </tbody>
+  </table>
+  <div class="g2" style="margin-top:24px">
+    <div class="card bt-blue"><h3>Tests</h3><p>Chain validation · mTLS negative (no client cert rejected) · injected key signs and verifies.</p></div>
+    <div class="card bt-purple"><h3>Phases</h3><p>CA setup → mTLS server → key injection → audit DB + Docker deployment.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="demo">
+  <span class="slide-num">06 / 07</span>
+  <div class="section-label">Quick start</div>
+  <h2 class="slide-title">Run the <span>factory pipeline</span></h2>
+  <pre>python3 ca/scripts/setup_ca.py
+
+python3 -m uvicorn server.factory_server:app --host 0.0.0.0 --port 8443 \
+  --ssl-keyfile certs/server/server.key --ssl-certfile certs/server/server.crt \
+  --ssl-cert-reqs 2 --ssl-ca-certs ca/root_ca/ca.crt
+
+python3 -m client.device_client VIN12345 --url https://localhost:8443
+# → certs/device_enclave/VIN12345.key + VIN12345.crt (chmod 400)</pre>
+  <p style="margin-top:16px;font-size:.82rem;color:var(--muted)">Proof-of-concept — local PKI in place of HSM-backed production CA. Keys excluded from git.</p>
+</section>
+
+<section class="slide slide-final" id="summary">
+  <span class="slide-num">07 / 07</span>
+  <div class="section-label">Summary</div>
+  <h2 class="final-h2">Secure identity at the production line</h2>
+  <p style="color:var(--muted);max-width:560px;font-size:.95rem">PKI + mTLS + audited key injection — foundation for vehicle-to-cloud and zero-trust manufacturing.</p>
+  <div class="pill-row" style="margin-top:28px">
+    <span class="pill">github.com/vgandhi1/automotive-key-provisioner</span>
+    <span class="pill">ARCHITECTURE_PROVISIONING.md</span>
+  </div>
+  <a class="final-link" href="https://github.com/vgandhi1/automotive-key-provisioner" target="_blank" rel="noopener">View Repository →</a>
+</section>
+
+<script>
+const sections=document.querySelectorAll('.slide[id]');
+const links=document.querySelectorAll('.nav-links a');
+sections.forEach(s=>{
+  new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id));});
+  },{rootMargin:'-40% 0px -55% 0px'}).observe(s);
+});
+document.addEventListener('keydown',e=>{
+  const ids=[...sections].map(s=>s.id);
+  const idx=ids.findIndex(id=>document.getElementById(id).getBoundingClientRect().top>=-100);
+  if(e.key==='ArrowDown'||e.key==='PageDown'){e.preventDefault();document.getElementById(ids[Math.min(idx+1,ids.length-1)]).scrollIntoView({behavior:'smooth'});}
+  if(e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();document.getElementById(ids[Math.max(idx-1,0)]).scrollIntoView({behavior:'smooth'});}
+});
+</script>
+</body>
+</html>
