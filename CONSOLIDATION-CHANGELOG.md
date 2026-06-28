@@ -91,8 +91,7 @@ Legacy decks on **archived repos remain static** (read-only gh-pages). **Future*
 
 - [x] Meta-repo pushed: https://github.com/vgandhi1/automotive-ota-security
 - [x] Three legacy repos archived on GitHub
-- [x] Portfolio + workspace tracking docs updated
-- [ ] Pages workflow run + three subpath decks live
+- [x] Portfolio HTML links updated + pushed
 - [ ] Fresh clone smoke test
 
 ---
