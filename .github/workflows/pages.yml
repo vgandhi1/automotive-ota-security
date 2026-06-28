@@ -1,0 +1,43 @@
+# Deploy all three presentation decks to gh-pages subpaths on this meta-repo.
+# Pages setting: Settings → Pages → Deploy from branch → gh-pages / (root)
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/presentation.html'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-automotive-ota-security
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build static site (three subpaths)
+        run: |
+          set -euo pipefail
+          for dir in OTA-firmware-verifier Overdrive-OTA-Manager automotive-key-provisioner; do
+            test -f "$dir/presentation.html" || { echo "Missing $dir/presentation.html"; exit 1; }
+            mkdir -p "_site/$dir"
+            cp "$dir/presentation.html" "_site/$dir/index.html"
+            cp "$dir/presentation.html" "_site/$dir/presentation.html"
+          done
+          touch _site/.nojekyll
+
+      - name: Publish to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          publish_branch: gh-pages
+          force_orphan: true
