@@ -60,7 +60,7 @@ Run **Deploy GitHub Pages** workflow after changing any `presentation.html`. Ena
 |----------|---------|
 | [`portfolio/plan.md`](portfolio/plan.md) | Cross-project status |
 | [`CONSOLIDATION-CHANGELOG.md`](CONSOLIDATION-CHANGELOG.md) | Full fold audit trail |
-| [`../governance/Guardrails/`](../governance/Guardrails/) | Canonical AI guardrails (SSOT) |
+| `governance/Guardrails/` (private repo) | Canonical AI guardrails (SSOT) |
 
 ## Clone
 

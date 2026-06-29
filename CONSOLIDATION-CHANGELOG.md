@@ -3,7 +3,7 @@
 **Date:** 2026-06-28  
 **Phase:** Phase 2 meta-repo (Model C pillar fold)  
 **Executor:** workspace consolidation pass  
-**Tracking parent:** [`../REPO-CONSOLIDATION-ANALYSIS.md`](../REPO-CONSOLIDATION-ANALYSIS.md)
+**Tracking parent:** workspace doc `REPO-IMPROVEMENT-STRATEGY.md` (canonical record)
 
 ---
 
