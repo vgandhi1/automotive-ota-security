@@ -19,4 +19,4 @@
 
 ## Governance
 
-Inherits [`governance/Guardrails/safety-baseline.md`](../../governance/Guardrails/safety-baseline.md). No project-specific guardrails file yet — add under `portfolio/GUARDRAILS.md` if scope expands.
+Inherits `governance/Guardrails/safety-baseline.md`. No project-specific guardrails file yet — add under `portfolio/GUARDRAILS.md` if scope expands.
